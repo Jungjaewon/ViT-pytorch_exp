@@ -39,8 +39,7 @@ def np2th(weights, conv=False):
     """Possibly convert HWIO to OIHW."""
     if conv:
         weights = weights.transpose([3, 2, 0, 1])
-    print(type(weights))
-    return torch.from_numpy(weights)
+    return torch.from_numpy(np.ndarray(weights))
     #return weights
 
 
