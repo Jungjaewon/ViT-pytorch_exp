@@ -44,7 +44,7 @@ class Classification_2d(Dataset):
         return self.transform(target_image), torch.LongTensor([cate_idx])
 
     def __len__(self):
-        return len(self.data_list)
+        return len(self.outfit_data)
 
 def get_loader(args):
     if args.local_rank not in [-1, 0]:
