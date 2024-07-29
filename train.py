@@ -62,7 +62,7 @@ def setup(args):
     if args.dataset == "cifar10":
         num_classes = 10
     elif args.dataset == "polyvore":
-        num_classes = 8
+        num_classes = 7
     else:
         num_classes = 100
 
