@@ -41,7 +41,7 @@ class Classification_2d(Dataset):
         cate_idx = data[1]
         target_image = Image.open(osp.join(img_path))
         target_image = target_image.convert('RGB')
-        return self.transform(target_image), [cate_idx]#torch.LongTensor([cate_idx])
+        return self.transform(target_image), torch.LongTensor(cate_idx)#torch.LongTensor([cate_idx])
 
     def __len__(self):
         return len(self.outfit_data)
