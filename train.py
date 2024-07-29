@@ -106,8 +106,11 @@ def valid(args, model, writer, test_loader, global_step):
     for step, batch in enumerate(epoch_iterator):
         batch = tuple(t.to(args.device) for t in batch)
         x, y = batch
+        print(f'x size : {x.size()}')
+        print(f'y size : {y.size()}')
         with torch.no_grad():
             logits = model(x)[0]
+            print(f'logits size : {logits.size()}')
 
             eval_loss = loss_fct(logits, y)
             eval_losses.update(eval_loss.item())
