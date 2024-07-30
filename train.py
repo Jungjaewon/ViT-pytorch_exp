@@ -6,6 +6,7 @@ import argparse
 import os
 import random
 import numpy as np
+import wandb
 
 from datetime import timedelta
 
@@ -130,6 +131,7 @@ def valid(args, model, writer, test_loader, global_step):
                 all_label[0], y.detach().cpu().numpy(), axis=0
             )
         epoch_iterator.set_description("Validating... (loss=%2.5f)" % eval_losses.val)
+        wandb.log({'val_loss': eval_losses.val})
 
     all_preds, all_label = all_preds[0], all_label[0]
     accuracy = simple_accuracy(all_preds, all_label)
@@ -226,8 +228,13 @@ def train(args, model):
                 if args.local_rank in [-1, 0]:
                     writer.add_scalar("train/loss", scalar_value=losses.val, global_step=global_step)
                     writer.add_scalar("train/lr", scalar_value=scheduler.get_lr()[0], global_step=global_step)
+
+                    wandb.log({'train_loss': losses.val})
+                    wandb.log({'train_lr': scheduler.get_lr()[0]})
+
                 if global_step % args.eval_every == 0 and args.local_rank in [-1, 0]:
                     accuracy = valid(args, model, writer, test_loader, global_step)
+                    wandb.log({'train_acc': accuracy})
                     if best_acc < accuracy:
                         save_model(args, model)
                         best_acc = accuracy
@@ -299,11 +306,14 @@ def main():
                         help="Loss scaling to improve fp16 numeric stability. Only used when fp16 set to True.\n"
                              "0 (default value): dynamic loss scaling.\n"
                              "Positive power of 2: static loss scaling value.\n")
+
+    parser.add_argument('--gpu_n', type=str, default='0',)
+
     args = parser.parse_args()
 
     # Setup CUDA, GPU & distributed training
     if args.local_rank == -1:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(f"cuda:{args.gpu_n}" if torch.cuda.is_available() else "cpu")
         args.n_gpu = torch.cuda.device_count()
     else:  # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
         torch.cuda.set_device(args.local_rank)
@@ -319,6 +329,10 @@ def main():
                         level=logging.INFO if args.local_rank in [-1, 0] else logging.WARN)
     logger.warning("Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bits training: %s" %
                    (args.local_rank, args.device, args.n_gpu, bool(args.local_rank != -1), args.fp16))
+
+    # Set Wandb
+    wandb.login(key='3b3fd7ec86b8f3f0f32f2d7a78456686d8755d99')
+    wandb.init(project='vit_b-16_training', name=args.name)
 
     # Set seed
     set_seed(args)
