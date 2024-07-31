@@ -7,6 +7,7 @@ import os
 import random
 import numpy as np
 import wandb
+wandb.require("core")
 
 from datetime import timedelta
 
