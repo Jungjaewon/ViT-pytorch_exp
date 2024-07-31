@@ -332,7 +332,7 @@ def main():
 
     # Set Wandb
     wandb.login(key='3b3fd7ec86b8f3f0f32f2d7a78456686d8755d99')
-    wandb.init(project='vit_b-16_training', name=args.name)
+    wandb.init(project=f'vit_b-16_training_{args.dataset}', name=args.name)
 
     # Set seed
     set_seed(args)
